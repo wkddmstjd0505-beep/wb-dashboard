@@ -1,0 +1,717 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>좋은습관PT 광고 대시보드</title>
+<style>
+:root {
+  --bg: #F2F1EC;
+  --card: #FFFFFF;
+  --ink: #1A1A1A;
+  --soft: #6A6760;
+  --line: #E0DDD5;
+  --acc: #243C2F;
+  --acc-light: #D4E4DA;
+
+  --문정: #243C2F;
+  --상도: #8C3D10;
+  --까치산: #1C4068;
+
+  --meta: #4A3DB8;
+  --place: #0F6B4A;
+  --power: #9B6000;
+  --daangn: #D55A18;
+
+  --good: #0F6B2E; --good-bg: #E0F2E8;
+  --warn: #7A5000; --warn-bg: #FFF3CC;
+  --bad:  #8C1A0F; --bad-bg:  #FAE5E2;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);font-family:-apple-system,BlinkMacSystemFont,"Pretendard","Apple SD Gothic Neo",sans-serif;color:var(--ink);font-size:13px;line-height:1.5;}
+.wrap{max-width:1320px;margin:0 auto;padding:28px 20px 72px;}
+
+/* HEADER */
+header{display:flex;justify-content:space-between;align-items:flex-end;flex-wrap:wrap;gap:12px;padding-bottom:18px;border-bottom:2px solid var(--ink);margin-bottom:24px;}
+.h-left .eyebrow{font-size:10px;letter-spacing:.12em;color:var(--soft);text-transform:uppercase;margin-bottom:5px;}
+.h-left h1{font-size:22px;font-weight:700;letter-spacing:-.02em;}
+.h-right{display:flex;gap:8px;align-items:center;flex-wrap:wrap;}
+.ctrl-label{font-size:11px;color:var(--soft);font-weight:600;}
+.tab-group{display:flex;gap:5px;}
+.tbtn{font-size:11px;font-weight:600;padding:6px 12px;border:1px solid var(--line);border-radius:5px;background:var(--card);color:var(--soft);cursor:pointer;transition:all .12s;}
+.tbtn:hover{border-color:var(--acc);}
+.tbtn.on{background:var(--acc);color:#fff;border-color:var(--acc);}
+.vdiv{width:1px;height:24px;background:var(--line);}
+
+/* ── HERO: 지점별 ROAS 카드 ── */
+.hero{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:28px;}
+.hcard{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:20px;position:relative;overflow:hidden;}
+.hcard::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;}
+.hcard.문정::before{background:var(--문정);}
+.hcard.상도::before{background:var(--상도);}
+.hcard.까치산::before{background:var(--까치산);}
+.hcard .h-branch{font-size:12px;font-weight:700;color:var(--soft);margin-bottom:10px;text-transform:uppercase;letter-spacing:.06em;}
+.hcard .roas-num{font-size:38px;font-weight:800;letter-spacing:-.03em;line-height:1;}
+.hcard .roas-label{font-size:10px;color:var(--soft);margin-top:2px;margin-bottom:14px;}
+.hcard .kpi-row{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;border-top:1px solid var(--line);padding-top:12px;}
+.hcard .kpi-item .kl{font-size:10px;color:var(--soft);}
+.hcard .kpi-item .kv{font-size:13px;font-weight:700;margin-top:2px;}
+.roas-good{color:var(--good);}
+.roas-warn{color:var(--warn);}
+.roas-bad{color:var(--bad);}
+
+/* 퍼널 미니바 */
+.funnel-mini{margin-top:12px;border-top:1px solid var(--line);padding-top:12px;}
+.fm-row{display:flex;justify-content:space-between;align-items:center;font-size:11px;margin-bottom:4px;}
+.fm-bar-wrap{flex:1;margin:0 8px;height:5px;background:var(--line);border-radius:3px;}
+.fm-bar{height:5px;border-radius:3px;}
+.fm-pct{font-weight:700;font-size:11px;min-width:36px;text-align:right;}
+
+/* ── 탭 뷰 ── */
+.view{display:none;}
+.view.on{display:block;}
+
+/* SECTION */
+.sec{margin-bottom:32px;}
+.sec-head{display:flex;align-items:center;gap:8px;margin-bottom:14px;}
+.sec-head h2{font-size:14px;font-weight:700;}
+.sec-head .sd{font-size:11px;color:var(--soft);margin-left:auto;}
+
+/* CHANNEL TABLE */
+.ch-table-wrap{background:var(--card);border:1px solid var(--line);border-radius:10px;overflow:hidden;}
+.ch-table{width:100%;border-collapse:collapse;}
+.ch-table th{font-size:10px;color:var(--soft);font-weight:600;padding:9px 12px;background:#F8F7F2;border-bottom:1px solid var(--line);text-align:left;white-space:nowrap;}
+.ch-table td{padding:9px 12px;border-bottom:1px solid var(--line);font-size:12px;vertical-align:middle;}
+.ch-table tr:last-child td{border-bottom:none;}
+.ch-table tr:hover td{background:#FAF9F5;}
+.branch-pill{font-size:10px;font-weight:700;padding:2px 7px;border-radius:4px;white-space:nowrap;}
+.ch-pill{font-size:10px;font-weight:700;padding:2px 7px;border-radius:4px;white-space:nowrap;}
+.pill-meta{background:#EAE7FA;color:var(--meta);}
+.pill-place{background:#D8F0E8;color:var(--place);}
+.pill-power{background:#FEF0D4;color:var(--power);}
+.pill-daangn{background:#FDE8D8;color:var(--daangn);}
+.ctr-val{font-weight:700;}
+.g{color:var(--good);}.w{color:var(--warn);}.r{color:var(--bad);}
+.bar-cell{width:80px;}
+.bar-bg{height:5px;background:var(--line);border-radius:3px;}
+.bar-fill{height:5px;border-radius:3px;}
+.spend-share{font-size:10px;color:var(--soft);}
+
+/* WEEKLY CHART */
+.chart-card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:18px;}
+.chart-leg{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:12px;}
+.leg{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--soft);}
+.leg-dot{width:9px;height:9px;border-radius:50%;}
+
+/* MATERIAL */
+.mat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;}
+.mat-card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:16px;}
+.mat-card .mc-branch{font-size:12px;font-weight:700;margin-bottom:12px;padding-bottom:8px;border-bottom:2px solid;}
+.mat-item{padding:8px 0;border-bottom:1px dashed var(--line);}
+.mat-item:last-child{border-bottom:none;}
+.mat-item .mi-head{display:flex;justify-content:space-between;align-items:center;gap:6px;margin-bottom:3px;}
+.mat-item .mi-name{font-size:11px;font-weight:600;flex:1;line-height:1.3;}
+.mat-item .mi-ctr{font-size:12px;font-weight:800;}
+.mat-item .mi-stat{font-size:10px;color:var(--soft);}
+.badge{font-size:9px;font-weight:700;padding:1px 5px;border-radius:3px;flex-shrink:0;}
+.b-best{background:var(--good-bg);color:var(--good);}
+.b-worst{background:var(--bad-bg);color:var(--bad);}
+.b-watch{background:var(--warn-bg);color:var(--warn);}
+
+/* INSIGHT 요약 */
+.insight-banner{background:var(--acc);color:#fff;border-radius:10px;padding:18px 22px;margin-bottom:28px;}
+.ib-title{font-size:12px;font-weight:700;opacity:.7;margin-bottom:10px;text-transform:uppercase;letter-spacing:.06em;}
+.ib-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;}
+.ib-item .ibi-branch{font-size:11px;opacity:.7;margin-bottom:4px;}
+.ib-item .ibi-best{font-size:13px;font-weight:700;margin-bottom:2px;}
+.ib-item .ibi-stat{font-size:11px;opacity:.7;}
+.ib-item .ibi-worst{font-size:11px;opacity:.6;margin-top:6px;text-decoration:line-through;}
+
+.footnote{margin-top:32px;font-size:10px;color:var(--soft);border-top:1px solid var(--line);padding-top:12px;line-height:1.8;}
+
+@media(max-width:900px){
+  .hero,.mat-grid,.ib-grid{grid-template-columns:1fr;}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <div class="h-left">
+    <div class="eyebrow">좋은습관PT · 마케팅 성과</div>
+    <h1>광고 효율 대시보드</h1>
+  </div>
+  <div class="h-right">
+    <span class="ctrl-label">기간</span>
+    <div class="tab-group" id="monthTabs">
+      <button class="tbtn on" data-month="all">전체</button>
+      <button class="tbtn" data-month="2026-06">6월</button>
+      <button class="tbtn" data-month="2026-07">7월</button>
+    </div>
+    <div class="vdiv"></div>
+    <span class="ctrl-label">보기</span>
+    <div class="tab-group" id="viewTabs">
+      <button class="tbtn on" data-view="overview">개요</button>
+      <button class="tbtn" data-view="channel">채널 효율</button>
+      <button class="tbtn" data-view="weekly">주차 추이</button>
+      <button class="tbtn" data-view="material">소재 순위</button>
+    </div>
+  </div>
+</header>
+
+<!-- ── 개요 ── -->
+<div class="view on" id="view-overview">
+
+  <!-- HERO ROAS 카드 -->
+  <div class="hero" id="heroGrid"></div>
+
+  <!-- 소재 인사이트 배너 -->
+  <div class="insight-banner" id="insightBanner"></div>
+
+  <!-- 채널 요약 -->
+  <div class="sec">
+    <div class="sec-head"><h2>채널별 효율 요약</h2><span class="sd">CTR · CPC · 지출 비중</span></div>
+    <div class="ch-table-wrap"><table class="ch-table" id="chTableOverview">
+      <thead><tr><th>지점</th><th>채널</th><th>노출</th><th>클릭</th><th>CTR</th><th>CPC</th><th>지출</th><th style="width:90px">지출비중</th></tr></thead>
+      <tbody id="chBodyOverview"></tbody>
+    </table></div>
+  </div>
+</div>
+
+<!-- ── 채널 효율 ── -->
+<div class="view" id="view-channel">
+  <div class="sec">
+    <div class="sec-head"><h2>지점 × 채널 상세 효율</h2><span class="sd">CTR 기준 색상 표시 (초록 ≥1% / 주황 ≥0.5% / 빨강 미만)</span></div>
+    <div class="ch-table-wrap"><table class="ch-table" id="chTableFull">
+      <thead><tr><th>지점</th><th>채널</th><th>노출</th><th>클릭</th><th>CTR</th><th>CPC</th><th>지출</th><th style="width:90px">지출비중</th></tr></thead>
+      <tbody id="chBodyFull"></tbody>
+    </table></div>
+  </div>
+</div>
+
+<!-- ── 주차 추이 ── -->
+<div class="view" id="view-weekly">
+  <div class="sec">
+    <div class="sec-head"><h2>지점별 주차 CTR 추이</h2></div>
+    <div class="chart-card">
+      <div class="chart-leg" id="legCTR"></div>
+      <svg id="svgCTR" style="display:block;width:100%;"></svg>
+    </div>
+  </div>
+  <div class="sec">
+    <div class="sec-head"><h2>지점별 주차 지출 추이</h2></div>
+    <div class="chart-card">
+      <div class="chart-leg" id="legSpend"></div>
+      <svg id="svgSpend" style="display:block;width:100%;"></svg>
+    </div>
+  </div>
+</div>
+
+<!-- ── 소재 순위 ── -->
+<div class="view" id="view-material">
+  <div class="sec">
+    <div class="sec-head"><h2>지점별 소재 효율 (CTR 순)</h2><span class="sd">클릭 5회 이상 소재만 표시</span></div>
+    <div class="mat-grid" id="matGrid"></div>
+  </div>
+</div>
+
+<div class="footnote">
+  * ROAS = 등록매출 ÷ 광고지출 (리드_전환 시트 등록 데이터 기반) · CTR = 클릭/노출 · CPC = 지출/클릭 · CPL = 지출/체험신청 · CAC = 지출/등록<br>
+  * 채널별 체험신청·등록 연결 불가 (공통 랜딩) → 전환 지표는 지점 단위 집계 / 채널 효율은 매체 단위 집계<br>
+  * ROAS 개선을 위해 Meta 광고를 카카오 채널 전환 목적지로 변경 시 소재 단위 CAC 추적 가능
+</div>
+
+</div>
+
+<script>
+/* ════════ DATA ════════ */
+const RAW = [
+  ["06/01~06/07","상도","Meta",6996,44,21307],["06/01~06/07","상도","Meta",83,0,305],
+  ["06/01~06/07","상도","Meta",73,0,394],["06/01~06/07","상도","Meta",2051,14,6191],
+  ["06/01~06/07","상도","Meta",1046,4,2765],["06/01~06/07","상도","Meta",1937,21,6452],
+  ["06/08~06/14","상도","Meta",6059,59,18996],["06/08~06/14","상도","Meta",1313,12,4718],
+  ["06/08~06/14","상도","Meta",2233,11,6830],["06/15~06/21","상도","Meta",13151,97,43651],
+  ["06/15~06/21","상도","Meta",624,9,1824],["06/15~06/21","상도","Meta",1193,7,3321],
+  ["06/22~06/28","상도","Meta",18896,131,50659],["06/22~06/28","상도","Meta",1070,7,2592],
+  ["06/22~06/28","상도","Meta",771,2,1870],["06/22~06/28","상도","Meta",26,1,359],
+  ["06/22~06/28","상도","Meta",1857,37,25216],["06/29~07/05","상도","Meta",1224,36,18335],
+  ["06/29~07/05","상도","Meta",555,5,7825],["06/29~07/05","상도","Meta",1653,13,12355],
+  ["06/29~07/05","상도","Meta",213,0,1911],["06/29~07/05","상도","Meta",168,1,765],
+  ["07/06~07/12","상도","Meta",59,0,446],
+  ["07/13~07/19","상도","Meta",1145,8,9910],["07/13~07/19","상도","Meta",168,1,1453],
+  ["07/13~07/19","상도","Meta",3052,22,23307],["07/13~07/19","상도","Meta",1456,35,25235],
+  ["06/08~06/14","상도","네이버플레이스",7426,38,58871],["06/08~06/14","상도","네이버플레이스",2161,12,17658],
+  ["06/08~06/14","상도","네이버플레이스",2015,13,17096],["06/08~06/14","상도","네이버플레이스",2087,9,14040],
+  ["06/08~06/14","상도","네이버플레이스",2058,13,19995],["06/15~06/21","상도","네이버플레이스",1490,12,20671],
+  ["06/15~06/21","상도","네이버플레이스",1401,13,23957],["06/15~06/21","상도","네이버플레이스",1005,8,13406],
+  ["06/22~06/28","상도","네이버플레이스",645,3,3946],["06/22~06/28","상도","네이버플레이스",2260,18,30831],
+  ["06/22~06/28","상도","네이버플레이스",2111,14,22763],["06/22~06/28","상도","네이버플레이스",634,3,4969],
+  ["06/29~07/05","상도","네이버플레이스",2936,30,49707],["06/29~07/05","상도","네이버플레이스",3780,23,40582],
+  ["07/06~07/12","상도","네이버플레이스",4804,37,63374],
+  ["07/13~07/19","상도","네이버플레이스",1197,8,14958],["07/13~07/19","상도","네이버플레이스",527,4,4555],
+  ["07/13~07/19","상도","네이버플레이스",483,1,1541],["07/13~07/19","상도","네이버플레이스",554,1,1776],
+  ["06/01~06/07","상도","네이버파워링크",100,2,1087],["06/01~06/07","상도","네이버파워링크",277,4,1027],
+  ["06/08~06/14","상도","네이버파워링크",455,7,3622],["06/08~06/14","상도","네이버파워링크",380,2,916],
+  ["06/15~06/21","상도","네이버파워링크",506,6,2652],["06/15~06/21","상도","네이버파워링크",455,6,2053],
+  ["06/22~06/28","상도","네이버파워링크",491,5,1148],["06/22~06/28","상도","네이버파워링크",413,3,557],
+  ["06/22~06/28","상도","네이버파워링크",129,0,0],["06/29~07/05","상도","네이버파워링크",982,10,3480],
+  ["07/06~07/12","상도","네이버파워링크",1129,12,3717],
+  ["07/13~07/19","상도","네이버파워링크",378,4,1839],["07/13~07/19","상도","네이버파워링크",427,4,1572],
+  ["06/01~06/07","문정","Meta",304,1,1368],["06/01~06/07","문정","Meta",9748,82,35543],
+  ["06/01~06/07","문정","Meta",120,1,548],["06/08~06/14","문정","Meta",1081,5,4114],
+  ["06/08~06/14","문정","Meta",4683,50,18671],["06/08~06/14","문정","Meta",1093,14,4947],
+  ["06/08~06/14","문정","Meta",746,4,2667],["06/15~06/21","문정","Meta",847,6,2571],
+  ["06/15~06/21","문정","Meta",9514,113,39178],["06/15~06/21","문정","Meta",992,9,4326],
+  ["06/15~06/21","문정","Meta",1046,16,3334],["06/22~06/28","문정","Meta",646,5,5726],
+  ["06/22~06/28","문정","Meta",11251,119,39253],["06/22~06/28","문정","Meta",1258,15,1834],
+  ["06/22~06/28","문정","Meta",521,2,1496],["06/29~07/05","문정","Meta",971,7,2373],
+  ["06/29~07/05","문정","Meta",33,1,258],["06/29~07/05","문정","Meta",1789,21,15846],
+  ["07/06~07/12","문정","Meta",31,0,287],
+  ["07/13~07/19","문정","Meta",118,3,915],["07/13~07/19","문정","Meta",4989,66,46629],
+  ["06/01~06/07","문정","네이버플레이스",2444,26,45426],["06/01~06/07","문정","네이버플레이스",1090,10,18076],
+  ["06/01~06/07","문정","네이버플레이스",1046,16,23663],["06/01~06/07","문정","네이버플레이스",1082,10,15572],
+  ["06/08~06/14","문정","네이버플레이스",900,17,24914],["06/08~06/14","문정","네이버플레이스",840,10,14173],
+  ["06/08~06/14","문정","네이버플레이스",827,10,15740],["06/08~06/14","문정","네이버플레이스",900,9,14145],
+  ["06/08~06/14","문정","네이버플레이스",930,15,24102],["06/08~06/14","문정","네이버플레이스",908,13,21313],
+  ["06/08~06/14","문정","네이버플레이스",213,3,5707],["06/29~07/05","문정","네이버플레이스",2921,33,53515],
+  ["07/06~07/12","문정","네이버플레이스",2767,33,52678],
+  ["07/13~07/19","문정","네이버플레이스",161,2,3570],["07/13~07/19","문정","네이버플레이스",598,10,17226],
+  ["07/13~07/19","문정","네이버플레이스",598,5,8770],["07/13~07/19","문정","네이버플레이스",661,7,11559],
+  ["06/01~06/07","문정","네이버파워링크",127,0,0],["06/01~06/07","문정","네이버파워링크",186,2,976],
+  ["06/01~06/07","문정","네이버파워링크",1184,14,8497],["06/08~06/14","문정","네이버파워링크",926,7,3516],
+  ["06/08~06/14","문정","네이버파워링크",1212,9,3805],["06/15~06/21","문정","네이버파워링크",1133,5,4142],
+  ["06/15~06/21","문정","네이버파워링크",1413,7,41813],["06/22~06/28","문정","네이버파워링크",1722,14,6944],
+  ["06/22~06/28","문정","네이버파워링크",2057,4,2757],["06/22~06/28","문정","네이버파워링크",797,6,3959],
+  ["06/22~06/28","문정","네이버파워링크",432,3,1763],["06/29~07/05","문정","네이버파워링크",8113,37,21857],
+  ["07/06~07/12","문정","네이버파워링크",8612,41,30393],
+  ["07/13~07/19","문정","네이버파워링크",5456,18,15167],["07/13~07/19","문정","네이버파워링크",2125,11,6548],
+  ["06/01~06/07","까치산","Meta",69,0,416],["06/01~06/07","까치산","Meta",8245,51,23917],
+  ["06/01~06/07","까치산","Meta",47,1,219],["06/01~06/07","까치산","Meta",3673,29,12726],
+  ["06/08~06/14","까치산","Meta",1092,7,3712],["06/08~06/14","까치산","Meta",870,7,3600],
+  ["06/08~06/14","까치산","Meta",973,4,2876],["06/08~06/14","까치산","Meta",5685,38,20147],
+  ["06/15~06/21","까치산","Meta",485,14,1775],["06/15~06/21","까치산","Meta",179,3,736],
+  ["06/15~06/21","까치산","Meta",6409,57,22884],
+  ["06/01~06/07","까치산","네이버플레이스",630,1,1300],["06/01~06/07","까치산","네이버플레이스",613,3,3981],
+  ["06/01~06/07","까치산","네이버플레이스",603,2,1877],["06/01~06/07","까치산","네이버플레이스",5941,3,3918],
+  ["06/08~06/14","까치산","네이버플레이스",4915,36,40034],["06/08~06/14","까치산","네이버플레이스",1830,5,42241],
+  ["06/08~06/14","까치산","네이버플레이스",1861,12,13076],["06/08~06/14","까치산","네이버플레이스",1814,16,17189],
+  ["06/08~06/14","까치산","네이버플레이스",1870,6,6920],["06/15~06/21","까치산","네이버플레이스",912,5,5019],
+  ["06/15~06/21","까치산","네이버플레이스",2494,24,26378],["06/15~06/21","까치산","네이버플레이스",2293,13,14742],
+  ["06/15~06/21","까치산","네이버플레이스",985,9,10151],["06/15~06/21","까치산","네이버플레이스",3392,28,33461],
+  ["06/22~06/28","까치산","네이버플레이스",1556,15,16407],["06/22~06/28","까치산","네이버플레이스",1614,7,9878],
+  ["06/29~07/05","까치산","네이버플레이스",6648,45,59295],["07/06~07/12","까치산","네이버플레이스",6960,51,65187],
+  ["07/13~07/19","까치산","네이버플레이스",1937,16,19944],["07/13~07/19","까치산","네이버플레이스",332,3,3584],
+  ["07/13~07/19","까치산","네이버플레이스",335,3,4156],["07/13~07/19","까치산","네이버플레이스",370,3,3866],
+  ["06/01~06/07","까치산","네이버파워링크",893,10,6321],["06/01~06/07","까치산","네이버파워링크",559,3,2468],
+  ["06/08~06/14","까치산","네이버파워링크",808,6,5197],["06/08~06/14","까치산","네이버파워링크",630,4,5622],
+  ["06/15~06/21","까치산","네이버파워링크",613,5,2725],["06/15~06/21","까치산","네이버파워링크",780,6,3590],
+  ["06/22~06/28","까치산","네이버파워링크",519,3,2645],["06/22~06/28","까치산","네이버파워링크",207,1,1225],
+  ["06/22~06/28","까치산","네이버파워링크",535,3,2349],["06/29~07/05","까치산","네이버파워링크",1437,13,12171],
+  ["07/06~07/12","까치산","네이버파워링크",2236,9,6911],
+  ["07/13~07/19","까치산","네이버파워링크",618,1,577],
+  ["06/24~06/30","까치산","당근",4615,22,12454],["06/24~06/30","까치산","당근",10924,43,25008],
+  ["06/24~06/30","까치산","당근",1817,16,9200],
+  ["07/13~07/19","까치산","당근",1020,4,2487],["07/13~07/19","까치산","당근",5462,27,16115],
+  ["07/13~07/19","까치산","당근",1741,13,7880],
+
+  ["06/01~06/07","상도","Meta",73,0,394],["06/01~06/07","상도","Meta",2051,14,6191],
+  ["06/01~06/07","상도","Meta",1046,4,2765],["06/01~06/07","상도","Meta",1937,21,6452],
+  ["06/08~06/14","상도","Meta",6059,59,18996],["06/08~06/14","상도","Meta",1313,12,4718],
+  ["06/08~06/14","상도","Meta",2233,11,6830],["06/15~06/21","상도","Meta",13151,97,43651],
+  ["06/15~06/21","상도","Meta",624,9,1824],["06/15~06/21","상도","Meta",1193,7,3321],
+  ["06/22~06/28","상도","Meta",18896,131,50659],["06/22~06/28","상도","Meta",1070,7,2592],
+  ["06/22~06/28","상도","Meta",771,2,1870],["06/22~06/28","상도","Meta",26,1,359],
+  ["06/22~06/28","상도","Meta",1857,37,25216],["06/29~07/05","상도","Meta",1224,36,18335],
+  ["06/29~07/05","상도","Meta",555,5,7825],["06/29~07/05","상도","Meta",1653,13,12355],
+  ["06/29~07/05","상도","Meta",213,0,1911],["06/29~07/05","상도","Meta",168,1,765],
+  ["07/06~07/12","상도","Meta",59,0,446],
+  ["06/08~06/14","상도","네이버플레이스",7426,38,58871],["06/08~06/14","상도","네이버플레이스",2161,12,17658],
+  ["06/08~06/14","상도","네이버플레이스",2015,13,17096],["06/08~06/14","상도","네이버플레이스",2087,9,14040],
+  ["06/08~06/14","상도","네이버플레이스",2058,13,19995],["06/15~06/21","상도","네이버플레이스",1490,12,20671],
+  ["06/15~06/21","상도","네이버플레이스",1401,13,23957],["06/15~06/21","상도","네이버플레이스",1005,8,13406],
+  ["06/22~06/28","상도","네이버플레이스",645,3,3946],["06/22~06/28","상도","네이버플레이스",2260,18,30831],
+  ["06/22~06/28","상도","네이버플레이스",2111,14,22763],["06/22~06/28","상도","네이버플레이스",634,3,4969],
+  ["06/29~07/05","상도","네이버플레이스",2936,30,49707],["06/29~07/05","상도","네이버플레이스",3780,23,40582],
+  ["07/06~07/12","상도","네이버플레이스",4804,37,63374],
+  ["06/01~06/07","상도","네이버파워링크",100,2,1087],["06/01~06/07","상도","네이버파워링크",277,4,1027],
+  ["06/08~06/14","상도","네이버파워링크",455,7,3622],["06/08~06/14","상도","네이버파워링크",380,2,916],
+  ["06/15~06/21","상도","네이버파워링크",506,6,2652],["06/15~06/21","상도","네이버파워링크",455,6,2053],
+  ["06/22~06/28","상도","네이버파워링크",491,5,1148],["06/22~06/28","상도","네이버파워링크",413,3,557],
+  ["06/22~06/28","상도","네이버파워링크",129,0,0],["06/29~07/05","상도","네이버파워링크",982,10,3480],
+  ["07/06~07/12","상도","네이버파워링크",1129,12,3717],
+  ["06/01~06/07","문정","Meta",304,1,1368],["06/01~06/07","문정","Meta",9748,82,35543],
+  ["06/01~06/07","문정","Meta",120,1,548],["06/08~06/14","문정","Meta",1081,5,4114],
+  ["06/08~06/14","문정","Meta",4683,50,18671],["06/08~06/14","문정","Meta",1093,14,4947],
+  ["06/08~06/14","문정","Meta",746,4,2667],["06/15~06/21","문정","Meta",847,6,2571],
+  ["06/15~06/21","문정","Meta",9514,113,39178],["06/15~06/21","문정","Meta",992,9,4326],
+  ["06/15~06/21","문정","Meta",1046,16,3334],["06/22~06/28","문정","Meta",646,5,5726],
+  ["06/22~06/28","문정","Meta",11251,119,39253],["06/22~06/28","문정","Meta",1258,15,1834],
+  ["06/22~06/28","문정","Meta",521,2,1496],["06/29~07/05","문정","Meta",971,7,2373],
+  ["06/29~07/05","문정","Meta",33,1,258],["06/29~07/05","문정","Meta",1789,21,15846],
+  ["07/06~07/12","문정","Meta",31,0,287],
+  ["06/01~06/07","문정","네이버플레이스",2444,26,45426],["06/01~06/07","문정","네이버플레이스",1090,10,18076],
+  ["06/01~06/07","문정","네이버플레이스",1046,16,23663],["06/01~06/07","문정","네이버플레이스",1082,10,15572],
+  ["06/08~06/14","문정","네이버플레이스",900,17,24914],["06/08~06/14","문정","네이버플레이스",840,10,14173],
+  ["06/08~06/14","문정","네이버플레이스",827,10,15740],["06/08~06/14","문정","네이버플레이스",900,9,14145],
+  ["06/08~06/14","문정","네이버플레이스",930,15,24102],["06/08~06/14","문정","네이버플레이스",908,13,21313],
+  ["06/08~06/14","문정","네이버플레이스",213,3,5707],["06/29~07/05","문정","네이버플레이스",2921,33,53515],
+  ["07/06~07/12","문정","네이버플레이스",2767,33,52678],
+  ["06/01~06/07","문정","네이버파워링크",127,0,0],["06/01~06/07","문정","네이버파워링크",186,2,976],
+  ["06/01~06/07","문정","네이버파워링크",1184,14,8497],["06/08~06/14","문정","네이버파워링크",926,7,3516],
+  ["06/08~06/14","문정","네이버파워링크",1212,9,3805],["06/15~06/21","문정","네이버파워링크",1133,5,4142],
+  ["06/15~06/21","문정","네이버파워링크",1413,7,41813],["06/22~06/28","문정","네이버파워링크",1722,14,6944],
+  ["06/22~06/28","문정","네이버파워링크",2057,4,2757],["06/22~06/28","문정","네이버파워링크",797,6,3959],
+  ["06/22~06/28","문정","네이버파워링크",432,3,1763],["06/29~07/05","문정","네이버파워링크",8113,37,21857],
+  ["07/06~07/12","문정","네이버파워링크",8612,41,30393],
+  ["06/01~06/07","까치산","Meta",69,0,416],["06/01~06/07","까치산","Meta",8245,51,23917],
+  ["06/01~06/07","까치산","Meta",47,1,219],["06/01~06/07","까치산","Meta",3673,29,12726],
+  ["06/08~06/14","까치산","Meta",1092,7,3712],["06/08~06/14","까치산","Meta",870,7,3600],
+  ["06/08~06/14","까치산","Meta",973,4,2876],["06/08~06/14","까치산","Meta",5685,38,20147],
+  ["06/15~06/21","까치산","Meta",485,14,1775],["06/15~06/21","까치산","Meta",179,3,736],
+  ["06/15~06/21","까치산","Meta",6409,57,22884],
+  ["06/01~06/07","까치산","네이버플레이스",630,1,1300],["06/01~06/07","까치산","네이버플레이스",613,3,3981],
+  ["06/01~06/07","까치산","네이버플레이스",603,2,1877],["06/01~06/07","까치산","네이버플레이스",5941,3,3918],
+  ["06/08~06/14","까치산","네이버플레이스",4915,36,40034],["06/08~06/14","까치산","네이버플레이스",1830,5,42241],
+  ["06/08~06/14","까치산","네이버플레이스",1861,12,13076],["06/08~06/14","까치산","네이버플레이스",1814,16,17189],
+  ["06/08~06/14","까치산","네이버플레이스",1870,6,6920],["06/15~06/21","까치산","네이버플레이스",912,5,5019],
+  ["06/15~06/21","까치산","네이버플레이스",2494,24,26378],["06/15~06/21","까치산","네이버플레이스",2293,13,14742],
+  ["06/15~06/21","까치산","네이버플레이스",985,9,10151],["06/15~06/21","까치산","네이버플레이스",3392,28,33461],
+  ["06/22~06/28","까치산","네이버플레이스",1556,15,16407],["06/22~06/28","까치산","네이버플레이스",1614,7,9878],
+  ["06/29~07/05","까치산","네이버플레이스",6648,45,59295],["07/06~07/12","까치산","네이버플레이스",6960,51,65187],
+  ["06/01~06/07","까치산","네이버파워링크",893,10,6321],["06/01~06/07","까치산","네이버파워링크",559,3,2468],
+  ["06/08~06/14","까치산","네이버파워링크",808,6,5197],["06/08~06/14","까치산","네이버파워링크",630,4,5622],
+  ["06/15~06/21","까치산","네이버파워링크",613,5,2725],["06/15~06/21","까치산","네이버파워링크",780,6,3590],
+  ["06/22~06/28","까치산","네이버파워링크",519,3,2645],["06/22~06/28","까치산","네이버파워링크",207,1,1225],
+  ["06/22~06/28","까치산","네이버파워링크",535,3,2349],["06/29~07/05","까치산","네이버파워링크",1437,13,12171],
+  ["07/06~07/12","까치산","네이버파워링크",2236,9,6911],
+  ["06/24~06/30","까치산","당근",4615,22,12454],["06/24~06/30","까치산","당근",10924,43,25008],
+  ["06/24~06/30","까치산","당근",1817,16,9200],
+  ["07/13~07/19","까치산","당근",1020,4,2487],["07/13~07/19","까치산","당근",5462,27,16115],
+  ["07/13~07/19","까치산","당근",1741,13,7880],
+];
+
+// 소재 데이터 (branch, channel, name, 노출, 클릭, 지출)
+const MAT = [
+  // 상도 ─────────────────────────────────────────────────────
+  ["상도","Meta","상도동유목민릴스",2880,72,51145],
+  ["상도","Meta","릴스2(다양한연령대)",1857,37,25216],
+  ["상도","Meta","쉬어도피곤하다면",4197,30,32666],
+  ["상도","Meta","뭐할지고민만했다면",1358,8,11821],
+  ["상도","Meta","같이할사람이필요한이유",51737,373,146471],
+  ["상도","Meta","공통점",14385,100,33249],
+  ["상도","Meta","5주년(대표님편지)",1937,21,6452],
+  ["상도","Meta","7월에시작한운동이유",1653,13,12355],
+  ["상도","네이버플레이스","5년째사랑받는그룹PT",5911,42,69160],
+  ["상도","네이버플레이스","운동이처음이어도괜찮은이유",5527,40,63816],
+  ["상도","네이버플레이스","오늘뭐할지운동끝",4133,38,64665],
+  ["상도","네이버플레이스","혼자운동어려웠다면",3690,23,41251],
+  ["상도","네이버플레이스","하루50분이만드는변화",527,4,4555],
+  ["상도","네이버플레이스","숨이덜차는일상을위해",483,1,1541],
+  ["상도","네이버플레이스","퇴근후에도체력남고싶다면",554,1,1776],
+  ["상도","네이버파워링크","5주년특별가체험신청",3216,39,15660],
+  ["상도","네이버파워링크","고민끝몸만오세요",1952,19,6125],
+  ["상도","네이버파워링크","오늘운동고민끝",982,10,3480],
+  // 문정 ─────────────────────────────────────────────────────
+  ["문정","Meta","쉬어도피곤하다면",6778,69,62475],
+  ["문정","Meta","공통점",34502,363,128454],
+  ["문정","Meta","새벽운동진짜장점",7835,97,26559],
+  ["문정","Meta","머릿속복잡할수록새벽",2313,22,7497],
+  ["문정","Meta","러닝",9748,82,35543],
+  ["문정","Meta","컨디션좋은사람들첫선택",118,3,915],
+  ["문정","네이버플레이스","요즘유독피곤하다면",5319,72,112128],
+  ["문정","네이버플레이스","아침50분의변화",5311,58,93705],
+  ["문정","네이버플레이스","퇴근후체력남고싶다면",2548,32,52478],
+  ["문정","네이버플레이스","숨이덜차는일상을위해",161,2,3570],
+  ["문정","네이버파워링크","퇴근후체력남고싶다면",18296,74,55024],
+  ["문정","네이버파워링크","아침50분의변화",4250,22,15318],
+  ["문정","네이버파워링크","지친몸PT",3908,26,14602],
+  // 까치산 ───────────────────────────────────────────────────
+  ["까치산","Meta","공통점",12094,95,43031],
+  ["까치산","Meta","운동취향",1577,21,5487],
+  ["까치산","Meta","헬스1.99만원",1049,10,4336],
+  ["까치산","Meta","러닝",8245,51,23917],
+  ["까치산","네이버플레이스","월1.99만원으로시작",18921,143,172867],
+  ["까치산","네이버플레이스","진짜운동하고싶다면",6266,46,50215],
+  ["까치산","네이버플레이스","하루50분이만드는변화",332,3,3584],
+  ["까치산","네이버플레이스","숨이덜차는일상을위해",335,3,4156],
+  ["까치산","네이버플레이스","퇴근후에도체력남고싶다면",370,3,3866],
+  ["까치산","네이버파워링크","헬스무료따로말고한번에",4776,36,29924],
+  ["까치산","네이버파워링크","월구독1.99",1969,13,11680],
+  ["까치산","당근","1만원대부담없이시작",16386,70,41123],
+  ["까치산","당근","1:1PT부담스럽고운동필요",3558,29,17080],
+  ["까치산","당근","꾸준히운동공통점",5635,26,14941],
+];
+
+const CONV = {
+  all:       { 문정:[60,47,21,9215400,801107], 상도:[40,38,17,7758800,779992], 까치산:[15,14,10,1251300,620872] },
+  "2026-06": { 문정:[30,23,13,6435400,466712], 상도:[19,19,14,6490800,458715], 까치산:[8,7,6,258500,418699] },
+  "2026-07": { 문정:[18,15,8,2780000,334395],  상도:[12,11,3,1268000,321277],  까치산:[4,4,4,992800,202173] },
+};
+
+const WEEK_MONTH = {
+  "06/01~06/07":"2026-06","06/08~06/14":"2026-06","06/15~06/21":"2026-06",
+  "06/22~06/28":"2026-06","06/24~06/30":"2026-06","06/29~07/05":"2026-07",
+  "07/06~07/12":"2026-07","07/13~07/19":"2026-07"
+};
+const WEEKS = ["06/01~06/07","06/08~06/14","06/15~06/21","06/22~06/28","06/29~07/05","07/06~07/12","07/13~07/19"];
+const COL = {문정:"#243C2F",상도:"#8C3D10",까치산:"#1C4068",Meta:"#4A3DB8",네이버플레이스:"#0F6B4A",네이버파워링크:"#9B6000",당근:"#D55A18"};
+const CH_PILL = {Meta:"pill-meta",네이버플레이스:"pill-place",네이버파워링크:"pill-power",당근:"pill-daangn"};
+
+let curMonth = "all";
+
+function filtered(){ return curMonth==="all"?RAW:RAW.filter(r=>WEEK_MONTH[r[0]]===curMonth); }
+function fmt만(v){ return v>=10000?Math.round(v/10000)+'만원':v.toLocaleString()+'원'; }
+function fmtCTR(n,c){ return n>0?(c/n*100).toFixed(2)+'%':'-'; }
+function fmtCPC(c,s){ return c>0?Math.round(s/c).toLocaleString()+'원':'-'; }
+function ctrCls(n,c){ const v=n>0?c/n*100:0; return v>=1?'g':v>=0.5?'w':'r'; }
+
+/* ── Hero 카드 ── */
+function renderHero(){
+  const conv = CONV[curMonth]||CONV.all;
+  document.getElementById("heroGrid").innerHTML = ["문정","상도","까치산"].map(br=>{
+    const [신청,참석,등록,매출,지출] = conv[br];
+    const roas = 지출>0?(매출/지출).toFixed(2):'-';
+    const roasNum = parseFloat(roas)||0;
+    const roasCls = roasNum>=10?'roas-good':roasNum>=5?'roas-warn':'roas-bad';
+    const cpl = 신청>0?Math.round(지출/신청).toLocaleString():'-';
+    const cac = 등록>0?Math.round(지출/등록).toLocaleString():'-';
+    const 참석율 = 신청>0?Math.round(참석/신청*100):0;
+    const 등록율 = 참석>0?Math.round(등록/참석*100):0;
+
+    // 전월비 delta (6월→7월 비교, 전체보기일 땐 숨김)
+    let roasDelta = '';
+    if(curMonth==="2026-07"){
+      const prev = CONV["2026-06"][br];
+      const prevRoas = prev[4]>0 ? prev[3]/prev[4] : 0;
+      const curRoas  = 지출>0 ? 매출/지출 : 0;
+      const diff = (curRoas - prevRoas).toFixed(2);
+      const sign = diff>0?'▲':'▼';
+      const cls  = diff>0?'roas-good':'roas-bad';
+      roasDelta = `<span style="font-size:12px;font-weight:600;margin-left:8px;" class="${cls}">${sign}${Math.abs(diff)}x vs 6월</span>`;
+    } else if(curMonth==="2026-06"){
+      const next = CONV["2026-07"][br];
+      const nextRoas = next[4]>0 ? next[3]/next[4] : 0;
+      const curRoas  = 지출>0 ? 매출/지출 : 0;
+      const diff = (nextRoas - curRoas).toFixed(2);
+      const sign = diff>0?'▲':'▼';
+      const cls  = diff>0?'roas-good':'roas-bad';
+      roasDelta = `<span style="font-size:12px;font-weight:600;margin-left:8px;" class="${cls}">${sign}${Math.abs(diff)}x (7월)</span>`;
+    }
+
+    return `<div class="hcard ${br}">
+      <div class="h-branch">${br}</div>
+      <div style="display:flex;align-items:baseline;flex-wrap:wrap;gap:4px;">
+        <div class="roas-num ${roasCls}">${roas}<span style="font-size:18px;font-weight:600">x</span></div>
+        ${roasDelta}
+      </div>
+      <div class="roas-label">ROAS · 광고비 ${fmt만(지출)} → 매출 ${fmt만(매출)}</div>
+      <div class="kpi-row">
+        <div class="kpi-item"><div class="kl">CPL</div><div class="kv">${cpl}원</div></div>
+        <div class="kpi-item"><div class="kl">CAC</div><div class="kv">${cac}원</div></div>
+        <div class="kpi-item"><div class="kl">등록</div><div class="kv">${등록}명</div></div>
+      </div>
+      <div class="funnel-mini">
+        <div class="fm-row"><span>신청 ${신청}건</span>
+          <div class="fm-bar-wrap"><div class="fm-bar" style="width:100%;background:${COL[br]};opacity:.3;"></div></div>
+        </div>
+        <div class="fm-row"><span>참석 ${참석}명</span>
+          <div class="fm-bar-wrap"><div class="fm-bar" style="width:${참석율}%;background:${COL[br]};opacity:.5;"></div></div>
+          <span class="fm-pct">${참석율}%</span>
+        </div>
+        <div class="fm-row"><span>등록 ${등록}명</span>
+          <div class="fm-bar-wrap"><div class="fm-bar" style="width:${등록율}%;background:${COL[br]};"></div></div>
+          <span class="fm-pct">${등록율}%</span>
+        </div>
+      </div>
+    </div>`;
+  }).join("");
+}
+
+/* ── 채널 테이블 ── */
+function buildChTable(tbodyId){
+  const rows = filtered();
+  const branches = ["문정","상도","까치산"];
+  const channels = ["Meta","네이버플레이스","네이버파워링크","당근"];
+  let html = "";
+  branches.forEach(br=>{
+    const brRows = rows.filter(r=>r[1]===br);
+    const totalSpend = brRows.reduce((a,r)=>a+r[6],0)||1;
+    let first = true;
+    channels.forEach(ch=>{
+      const chRows = brRows.filter(r=>r[2]===ch);
+      if(!chRows.length) return;
+      const n=chRows.reduce((a,r)=>a+r[3],0);
+      const c=chRows.reduce((a,r)=>a+r[4],0);
+      const s=chRows.reduce((a,r)=>a+r[5],0);
+      const pct = s/totalSpend*100;
+      const cls = ctrCls(n,c);
+      html += `<tr>
+        ${first?`<td rowspan="placeholder" style="font-weight:700;color:${COL[br]};vertical-align:top;padding-top:11px;">${br}</td>`:''}
+        <td><span class="ch-pill ${CH_PILL[ch]}">${ch}</span></td>
+        <td style="text-align:right">${n.toLocaleString()}</td>
+        <td style="text-align:right">${c.toLocaleString()}</td>
+        <td class="ctr-val ${cls}">${fmtCTR(n,c)}</td>
+        <td style="text-align:right">${fmtCPC(c,s)}</td>
+        <td style="text-align:right">${fmt만(s)}</td>
+        <td>
+          <div class="bar-bg"><div class="bar-fill" style="width:${Math.min(pct,100).toFixed(1)}%;background:${COL[ch]};opacity:.7;"></div></div>
+          <div class="spend-share">${pct.toFixed(0)}%</div>
+        </td>
+      </tr>`;
+      first = false;
+    });
+    // rowspan 수정
+    const cnt = channels.filter(ch=>brRows.some(r=>r[2]===ch)).length;
+    html = html.replace('rowspan="placeholder"',`rowspan="${cnt}"`);
+  });
+  document.getElementById(tbodyId).innerHTML = html;
+}
+
+/* ── 인사이트 배너 ── */
+function renderInsight(){
+  const rows = filtered();
+  const matAgg = {};
+  MAT.forEach(m=>{
+    const wRows = rows.filter(r=>r[1]===m[0]&&r[2]===m[1]);
+    if(!wRows.length) return;
+    const key=m[0]+'||'+m[1]+'||'+m[2];
+    if(!matAgg[key]) matAgg[key]=[m[0],m[1],m[2],m[3],m[4],m[5]];
+    else { matAgg[key][3]+=m[3]; matAgg[key][4]+=m[4]; matAgg[key][5]+=m[5]; }
+  });
+
+  const items = Object.values(matAgg).filter(m=>m[4]>=5).map(m=>{
+    const ctr = m[3]>0?m[4]/m[3]*100:0;
+    const cpc = m[4]>0?Math.round(m[5]/m[4]):0;
+    return [...m, ctr, cpc];
+  });
+
+  const html = ["문정","상도","까치산"].map(br=>{
+    const brItems = items.filter(m=>m[0]===br).sort((a,b)=>b[6]-a[6]);
+    if(!brItems.length) return `<div class="ib-item"><div class="ibi-branch">${br}</div><div class="ibi-stat">데이터 없음</div></div>`;
+    const best = brItems[0];
+    const worst = brItems[brItems.length-1];
+    return `<div class="ib-item">
+      <div class="ibi-branch">${br}</div>
+      <div class="ibi-best">✅ ${best[2]}</div>
+      <div class="ibi-stat">CTR ${best[6].toFixed(2)}% · CPC ${best[7].toLocaleString()}원 · ${best[1]}</div>
+      <div class="ibi-worst">❌ ${worst[2]} (CTR ${worst[6].toFixed(2)}%)</div>
+    </div>`;
+  }).join("");
+
+  document.getElementById("insightBanner").innerHTML = `
+    <div class="ib-title">지점별 Best · Worst 소재</div>
+    <div class="ib-grid">${html}</div>`;
+}
+
+/* ── 주차 추이 차트 ── */
+function buildChart(svgId, legId, series, fmtY){
+  const svg = document.getElementById(svgId);
+  const W = Math.max(svg.parentElement.clientWidth-36, 400);
+  const H = 190;
+  const p = {t:14,r:16,b:36,l:58};
+  const iW=W-p.l-p.r, iH=H-p.t-p.b;
+  const weeks = WEEKS.filter(w=>curMonth==="all"||WEEK_MONTH[w]===curMonth);
+  const n=weeks.length; if(!n) return;
+
+  const allV = series.flatMap(s=>s.v.filter((_,i)=>WEEKS.indexOf(weeks[0])<=i));
+  const maxV = Math.max(...allV.filter(v=>v!=null))*1.18||1;
+  const xS = i=>p.l+i*(iW/Math.max(n-1,1));
+  const yS = v=>p.t+iH-(v/maxV)*iH;
+
+  let html="";
+  [0,.25,.5,.75,1].forEach(t=>{
+    const y=yS(maxV*t);
+    html+=`<line x1="${p.l}" x2="${p.l+iW}" y1="${y}" y2="${y}" stroke="#E0DDD5" stroke-width="1"/>`;
+    html+=`<text x="${p.l-5}" y="${y+4}" text-anchor="end" font-size="10" fill="#6A6760">${fmtY(maxV*t)}</text>`;
+  });
+  weeks.forEach((w,i)=>{
+    html+=`<text x="${xS(i)}" y="${H-6}" text-anchor="middle" font-size="9" fill="#6A6760">${w.slice(5)}</text>`;
+  });
+  series.forEach(s=>{
+    const pts = weeks.map((w,i)=>{
+      const wi = WEEKS.indexOf(w);
+      return [xS(i), yS(s.v[wi]||0)];
+    });
+    const d=pts.map((p,i)=>(i===0?'M':'L')+p[0].toFixed(1)+','+p[1].toFixed(1)).join(' ');
+    html+=`<path d="${d}" fill="none" stroke="${s.c}" stroke-width="2.2" stroke-linejoin="round" stroke-linecap="round"/>`;
+    pts.forEach(pt=>html+=`<circle cx="${pt[0].toFixed(1)}" cy="${pt[1].toFixed(1)}" r="4" fill="#fff" stroke="${s.c}" stroke-width="2"/>`);
+  });
+  svg.setAttribute("width",W); svg.setAttribute("height",H);
+  svg.innerHTML=html;
+  document.getElementById(legId).innerHTML=series.map(s=>`<div class="leg"><div class="leg-dot" style="background:${s.c}"></div>${s.label}</div>`).join("");
+}
+
+function renderWeekly(){
+  const ctrSeries = ["문정","상도","까치산"].map(br=>({
+    label:br, c:COL[br],
+    v: WEEKS.map(w=>{ const r=RAW.filter(x=>x[0]===w&&x[1]===br); const n=r.reduce((a,x)=>a+x[3],0),c=r.reduce((a,x)=>a+x[4],0); return n>0?c/n*100:0; })
+  }));
+  const spendSeries = ["문정","상도","까치산"].map(br=>({
+    label:br, c:COL[br],
+    v: WEEKS.map(w=>RAW.filter(x=>x[0]===w&&x[1]===br).reduce((a,x)=>a+x[5],0)/10000)
+  }));
+  buildChart("svgCTR","legCTR",ctrSeries,v=>v.toFixed(1)+'%');
+  buildChart("svgSpend","legSpend",spendSeries,v=>v.toFixed(0)+'만');
+}
+
+/* ── 소재 순위 ── */
+function renderMaterial(){
+  document.getElementById("matGrid").innerHTML = ["문정","상도","까치산"].map(br=>{
+    const items = MAT.filter(m=>m[0]===br&&m[4]>=5)
+      .map(m=>[...m, m[3]>0?m[4]/m[3]*100:0, m[4]>0?Math.round(m[5]/m[4]):0])
+      .sort((a,b)=>b[6]-a[6]);
+    if(!items.length) return '';
+    const rows = items.map((m,i)=>{
+      const isBest=i===0, isWorst=i===items.length-1&&items.length>1;
+      const cls = m[6]>=1?'g':m[6]>=0.5?'w':'r';
+      return `<div class="mat-item">
+        <div class="mi-head">
+          <div class="mi-name">${m[2]}<span style="font-size:9px;color:#999;margin-left:4px">${m[1]}</span></div>
+          ${isBest?'<span class="badge b-best">Best</span>':''}
+          ${isWorst?'<span class="badge b-worst">Worst</span>':''}
+          <div class="mi-ctr ${cls}">${m[6].toFixed(2)}%</div>
+        </div>
+        <div class="mi-stat">노출 ${m[3].toLocaleString()} · 클릭 ${m[4]} · CPC ${m[7].toLocaleString()}원</div>
+      </div>`;
+    }).join("");
+    return `<div class="mat-card">
+      <div class="mc-branch" style="color:${COL[br]};border-color:${COL[br]}">${br}</div>
+      ${rows}
+    </div>`;
+  }).join("");
+}
+
+/* ── 탭 & 렌더 ── */
+function setView(v){
+  document.querySelectorAll(".view").forEach(x=>x.classList.remove("on"));
+  document.getElementById("view-"+v).classList.add("on");
+  document.querySelectorAll("#viewTabs .tbtn").forEach(b=>b.classList.toggle("on",b.dataset.view===v));
+  if(v==="weekly") renderWeekly();
+  if(v==="material") renderMaterial();
+}
+
+document.querySelectorAll("#monthTabs .tbtn").forEach(b=>b.addEventListener("click",()=>{
+  curMonth=b.dataset.month;
+  document.querySelectorAll("#monthTabs .tbtn").forEach(x=>x.classList.toggle("on",x===b));
+  renderAll();
+}));
+document.querySelectorAll("#viewTabs .tbtn").forEach(b=>b.addEventListener("click",()=>setView(b.dataset.view)));
+
+function renderAll(){
+  renderHero();
+  renderInsight();
+  buildChTable("chBodyOverview");
+  buildChTable("chBodyFull");
+  const av=document.querySelector(".view.on")?.id?.replace("view-","");
+  if(av==="weekly") renderWeekly();
+  if(av==="material") renderMaterial();
+}
+
+renderAll();
+window.addEventListener("resize",()=>{
+  if(document.getElementById("view-weekly").classList.contains("on")) renderWeekly();
+});
+</script>
+</body>
+</html>
