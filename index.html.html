@@ -1,0 +1,726 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>좋은습관PT 운영 대시보드</title>
+<style>
+  :root{
+    --bg:#F6F4EF;
+    --card:#FFFFFF;
+    --ink:#1F2421;
+    --ink-soft:#5B6058;
+    --line:#E4E0D6;
+    --good:#2F6B4F;
+    --good-bg:#E7F2EC;
+    --warn:#B5781E;
+    --warn-bg:#FBEEDA;
+    --bad:#A1402F;
+    --bad-bg:#FAE7E2;
+    --accent:#2C4A3E;
+    --accent-soft:#DCE7DF;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    background:var(--bg);
+    color:var(--ink);
+    font-family:-apple-system,BlinkMacSystemFont,"Pretendard","Apple SD Gothic Neo","Malgun Gothic",sans-serif;
+    line-height:1.5;
+  }
+  .wrap{max-width:1180px;margin:0 auto;padding:32px 20px 80px;}
+
+  /* header */
+  header{display:flex;justify-content:space-between;align-items:flex-end;flex-wrap:wrap;gap:16px;margin-bottom:20px;border-bottom:2px solid var(--ink);padding-bottom:18px;}
+  .brand-eyebrow{font-size:12px;letter-spacing:0.12em;color:var(--ink-soft);text-transform:uppercase;margin-bottom:6px;}
+  h1{font-size:26px;margin:0;font-weight:700;letter-spacing:-0.01em;}
+  .meta{text-align:right;font-size:13px;color:var(--ink-soft);}
+  .meta b{color:var(--ink);}
+
+  /* mode tabs */
+  .mode-tabs{display:flex;gap:8px;margin-bottom:28px;}
+  .mode-tab{
+    border:1px solid var(--line);
+    background:var(--card);
+    color:var(--ink-soft);
+    font-size:13px;
+    font-weight:600;
+    padding:9px 18px;
+    border-radius:8px;
+    cursor:pointer;
+    transition:all .15s ease;
+  }
+  .mode-tab:hover{border-color:var(--accent);}
+  .mode-tab.active{background:var(--accent);color:#fff;border-color:var(--accent);}
+
+  /* summary row */
+  .summary-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:28px;}
+  .sumcard{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:16px 16px 14px;}
+  .sumcard .label{font-size:12px;color:var(--ink-soft);margin-bottom:6px;}
+  .sumcard .value{font-size:24px;font-weight:700;letter-spacing:-0.01em;}
+  .sumcard .sub{font-size:12px;margin-top:4px;}
+  .pos{color:var(--good);}
+  .neg{color:var(--bad);}
+
+  /* section title */
+  .section-title{display:flex;align-items:center;gap:10px;margin:36px 0 14px;}
+  .section-title .num{font-size:12px;font-weight:700;color:var(--card);background:var(--accent);border-radius:50%;width:22px;height:22px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+  .section-title h2{font-size:16px;margin:0;font-weight:700;}
+  .section-title .desc{font-size:12px;color:var(--ink-soft);margin-left:auto;}
+
+  /* branch cards */
+  .branch-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;}
+  .branch-card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:20px;display:flex;flex-direction:column;gap:14px;}
+  .branch-head{display:flex;justify-content:space-between;align-items:flex-start;}
+  .branch-name{font-size:17px;font-weight:700;}
+  .branch-week{font-size:11px;color:var(--ink-soft);margin-top:2px;}
+  .status-pill{font-size:11px;font-weight:700;padding:3px 9px;border-radius:20px;white-space:nowrap;}
+  .status-good{background:var(--good-bg);color:var(--good);}
+  .status-warn{background:var(--warn-bg);color:var(--warn);}
+  .status-bad{background:var(--bad-bg);color:var(--bad);}
+
+  .kpi-row{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;}
+  .kpi{border:1px solid var(--line);border-radius:8px;padding:8px 10px;}
+  .kpi .k-label{font-size:11px;color:var(--ink-soft);}
+  .kpi .k-value{font-size:15px;font-weight:700;margin-top:2px;}
+  .kpi .k-target{font-size:10.5px;color:var(--ink-soft);margin-top:1px;}
+  .kpi.flag-bad{background:var(--bad-bg);border-color:#EBC3B8;}
+  .kpi.flag-bad .k-value{color:var(--bad);}
+  .kpi.flag-warn{background:var(--warn-bg);border-color:#F0D4A4;}
+  .kpi.flag-warn .k-value{color:var(--warn);}
+  .kpi.flag-good .k-value{color:var(--good);}
+  .kpi.flag-neutral .k-value{color:var(--ink);}
+
+  .hpa{border-top:1px dashed var(--line);padding-top:12px;font-size:12.5px;}
+  .hpa-row{display:flex;gap:8px;margin-bottom:6px;align-items:flex-start;}
+  .hpa-tag{flex-shrink:0;font-size:10.5px;font-weight:700;color:var(--ink-soft);width:38px;padding-top:4px;}
+  .hpa-text{color:var(--ink);}
+
+  /* 편집 영역 */
+  .hpa-lines{display:flex;flex-direction:column;gap:4px;flex:1;}
+  .hpa-line{display:flex;align-items:flex-start;gap:6px;}
+  .hpa-editable{
+    flex:1;
+    font-size:12.5px;
+    color:var(--ink);
+    border:1px solid transparent;
+    border-radius:5px;
+    padding:3px 6px;
+    line-height:1.5;
+    outline:none;
+    background:transparent;
+    cursor:text;
+    word-break:break-all;
+    min-height:22px;
+    transition:border-color .15s, background .15s;
+  }
+  .hpa-editable:hover{border-color:var(--line);background:#FAF8F3;}
+  .hpa-editable:focus{border-color:var(--accent);background:#fff;box-shadow:0 0 0 2px var(--accent-soft);}
+  .hpa-editable:empty:before{content:attr(data-placeholder);color:#B0ACA6;font-style:italic;}
+  .hpa-btn{
+    flex-shrink:0;
+    border:none;background:none;cursor:pointer;
+    font-size:14px;line-height:1;padding:3px 2px;
+    color:var(--ink-soft);opacity:0.4;transition:opacity .15s;
+    margin-top:2px;
+  }
+  .hpa-btn:hover{opacity:1;}
+  .hpa-btn.del{color:var(--bad);}
+  .hpa-add{
+    display:flex;align-items:center;gap:4px;
+    font-size:11px;color:var(--ink-soft);
+    background:none;border:1px dashed var(--line);
+    border-radius:5px;padding:3px 8px;cursor:pointer;
+    margin-top:4px;width:100%;transition:all .15s;
+  }
+  .hpa-add:hover{border-color:var(--accent);color:var(--accent);background:var(--accent-soft);}
+  .edit-hint{font-size:10px;color:var(--ink-soft);text-align:right;margin-top:6px;opacity:0.6;}
+
+  /* watchlist */
+  .watch-table{width:100%;border-collapse:collapse;background:var(--card);border-radius:12px;overflow:hidden;border:1px solid var(--line);}
+  .watch-table th{text-align:left;font-size:11px;color:var(--ink-soft);font-weight:600;padding:10px 14px;background:#FAF8F3;border-bottom:1px solid var(--line);}
+  .watch-table td{padding:11px 14px;font-size:13px;border-bottom:1px solid var(--line);vertical-align:top;}
+  .watch-table tr:last-child td{border-bottom:none;}
+  .branch-tag{font-weight:700;}
+  .sev-dot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:6px;}
+  .sev-bad{background:var(--bad);}
+  .sev-warn{background:var(--warn);}
+
+  /* trend mini bars (weekly view) */
+  .trend-block{margin-top:6px;}
+  .trend-label{font-size:10.5px;color:var(--ink-soft);margin-bottom:4px;}
+  .trend-bars{display:flex;align-items:flex-end;gap:4px;height:34px;}
+  .trend-bar{flex:1;background:var(--accent-soft);border-radius:3px 3px 0 0;position:relative;min-height:3px;}
+  .trend-bar.current{background:var(--accent);}
+
+  /* 신청률 delta 배지 */
+  .rate-delta{display:inline-block;font-size:10px;font-weight:700;padding:2px 6px;border-radius:4px;margin-left:5px;vertical-align:middle;}
+  .rate-up{background:var(--good-bg);color:var(--good);}
+  .rate-dn{background:var(--bad-bg);color:var(--bad);}
+  .rate-flat{background:#EFEFEF;color:var(--ink-soft);}
+  .rate-na{background:#EFEFEF;color:var(--ink-soft);}
+
+  /* footer note */
+  .footnote{margin-top:40px;font-size:11.5px;color:var(--ink-soft);border-top:1px solid var(--line);padding-top:14px;}
+
+  .view{display:none;}
+  .view.active{display:block;}
+
+  @media (max-width:920px){
+    .summary-grid{grid-template-columns:repeat(2,1fr);}
+    .branch-grid{grid-template-columns:1fr;}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <div>
+      <div class="brand-eyebrow">좋은습관PT · 운영 대시보드</div>
+      <h1 id="pageTitle">지점별 운영 현황</h1>
+    </div>
+    <div class="meta">
+      기준 시점 <b id="asof">-</b><br>
+      데이터 소스: 지점별 운영 시트
+    </div>
+  </header>
+
+  <div class="mode-tabs">
+    <button class="mode-tab active" data-mode="weekly">주간 보고</button>
+    <button class="mode-tab" data-mode="monthly">월간 결산</button>
+  </div>
+
+  <!-- ============ WEEKLY VIEW ============ -->
+  <div class="view active" id="view-weekly">
+    <div class="summary-grid" id="summaryGridW"></div>
+
+    <div class="section-title">
+      <div class="num">1</div>
+      <h2>지점별 주간 현황 · 문제</h2>
+      <div class="desc">전주 대비 추세 및 목표 갭 자동 표시</div>
+    </div>
+    <div class="branch-grid" id="branchGridW"></div>
+
+    <div class="section-title">
+      <div class="num">2</div>
+      <h2>전사 워치리스트</h2>
+      <div class="desc">목표 갭이 크거나 전주 대비 악화된 지표</div>
+    </div>
+    <table class="watch-table" id="watchTableW">
+      <thead><tr><th style="width:90px">지점</th><th style="width:120px">지표</th><th>내용</th></tr></thead>
+      <tbody id="watchBodyW"></tbody>
+    </table>
+  </div>
+
+  <!-- ============ MONTHLY VIEW ============ -->
+  <div class="view" id="view-monthly">
+    <div class="summary-grid" id="summaryGridM"></div>
+
+    <div class="section-title">
+      <div class="num">1</div>
+      <h2>지점별 현황 · 문제 · 액션</h2>
+      <div class="desc">목표 대비 미달 항목은 자동으로 색상 표시됩니다</div>
+    </div>
+    <div class="branch-grid" id="branchGridM"></div>
+
+    <div class="section-title">
+      <div class="num">2</div>
+      <h2>전사 워치리스트</h2>
+      <div class="desc">목표 달성률 70% 미만 또는 전주 대비 급락 항목</div>
+    </div>
+    <table class="watch-table" id="watchTableM">
+      <thead><tr><th style="width:90px">지점</th><th style="width:120px">지표</th><th>내용</th></tr></thead>
+      <tbody id="watchBodyM"></tbody>
+    </table>
+  </div>
+
+  <div class="footnote" id="footnote"></div>
+
+</div>
+
+<script>
+/* ========================================================
+   WEEKLY DATA — 매주 이 객체만 교체하면 됩니다.
+   ======================================================== */
+const WEEKLY_DATA = {
+  asOf: "2026.07.19 기준 (7월 3주차, 7/13~7/19)",
+  weekOfMonth: 3,
+  branches: [
+    {
+      name: "문정",
+      week: "7월 3주차 (7/13~19)",
+      monthRevenue: 1181,
+      monthTarget: 1980,
+      revenueWeek: 400,
+      members: 114,
+      otRateCumulative: 54,
+      reRegFraction: "13/39",
+      reRegRate: 33,
+      occupancy: "오후 56% / 새벽 13%",
+      lowActivityRate: 22,
+      applyCount: 9,
+      trialCount: 6,
+      applyRate1: 2.55,
+      applyRate2: 3.16,
+      applyRateAvg6: 1.77,
+      prevWeek: { revenueWeek: 481, lowActivityRate: 19, reRegRate: 21 },
+      status: "warn",
+      current: [
+        "7월 누적 매출 1,181만원(목표 1,980만원, 진행률 60%), 3주차 신청률 3.16%로 6월 평균(1.77%) 대비 크게 개선",
+        "유효회원 114명 안정적, OT율 54%·저조자율 22%로 전주(19%) 소폭 상승"
+      ],
+      problem: [
+        "누적 재등록률 33%(13/39) — 3주차 기준 목표(59%) 대비 26%p 갭, 잔여 대상자 26명 전환이 핵심",
+        "새벽반 가동률 13%로 정착 지연 — 슬롯 조정 및 홍보 강화 필요"
+      ]
+    },
+    {
+      name: "상도",
+      week: "7월 3주차 (7/13~19)",
+      monthRevenue: 453,
+      monthTarget: 1150,
+      revenueWeek: 151,
+      members: 88,
+      otRateCumulative: 30,
+      reRegFraction: "6/23",
+      reRegRate: 26,
+      occupancy: "53%",
+      lowActivityRate: 24,
+      applyCount: 1,
+      trialCount: 3,
+      applyRate1: 1.87,
+      applyRate2: 0.42,
+      applyRateAvg6: 1.23,
+      prevWeek: { revenueWeek: 108, lowActivityRate: 23, reRegRate: 13 },
+      status: "bad",
+      current: [
+        "7월 누적 매출 453만원(목표 1,150만원, 진행률 39%), 재등록률 26%(6/23)로 전주(13%) 대비 회복 중",
+        "가동률 53%로 안정적, 저조자율 24%로 전주(23%) 비슷한 수준 유지"
+      ],
+      problem: [
+        "신청률 0.42%로 6월 평균(1.23%) 대비 급락 — 플레이스 조회수 237회 기준 신청 1건에 불과",
+        "OT율 30%로 전 주차 중 최저 — 체험 3건 중 등록 전환 매우 저조"
+      ]
+    },
+    {
+      name: "까치산",
+      week: "7월 3주차 (7/13~19)",
+      monthRevenue: 175,
+      monthTarget: 500,
+      revenueWeek: 71,
+      members: 26,
+      otRateCumulative: 33,
+      reRegFraction: "1/11",
+      reRegRate: 9,
+      occupancy: "43%",
+      lowActivityRate: 40,
+      applyCount: 2,
+      trialCount: 1,
+      applyRate1: 3.06,
+      applyRate2: 1.24,
+      applyRateAvg6: null,
+      prevWeek: { revenueWeek: 99, lowActivityRate: 36, reRegRate: 0 },
+      status: "bad",
+      current: [
+        "7월 누적 매출 175만원(목표 500만원, 진행률 35%), 재등록 첫 1건 발생(1/11, 9%)",
+        "신청 2건·체험 1건으로 유입 소폭 회복 중"
+      ],
+      problem: [
+        "재등록률 9%(1/11) — 대상자 11명 중 1명만 전환, 7월 마지막 주가 사실상 마지막 기회",
+        "저조자율 40%로 전주 동일 수준, 개선 없음 — 유효회원 26명으로 이탈 위험 지속"
+      ]
+    }
+  ],
+  watchlist: [
+    { branch: "상도",   metric: "신청률",    severity: "bad",  text: "0.42% — 전주(2.31%) 대비 급락, 6월 평균(1.23%)도 크게 하회. 광고·플레이스 점검 필요" },
+    { branch: "까치산", metric: "재등록률",  severity: "bad",  text: "9%(1/11) — 7월 마지막 주가 마지막 기회. 잔여 10명 개별 접촉 즉시 필요" },
+    { branch: "까치산", metric: "저조자율",  severity: "bad",  text: "40% — 3주 연속 동일 수준, 개선 없음. 유효회원 이탈 방지 시급" },
+    { branch: "문정",   metric: "재등록률",  severity: "warn", text: "33%(13/39) — 잔여 26명 전환 집중 필요. 4주차가 실질적 마감" }
+  ]
+};
+const MONTHLY_DATA = {
+  asOf: "2026.06.28 기준 (6월 결산)",
+  branches: [
+    {
+      name: "문정",
+      week: "6월 결산",
+      revenue:   { value: 1886, target: 2040, unit: "만원" },
+      members:   { value: 115,  target: 108,  unit: "명" },
+      otRate:    { value: 57,   target: 60,   unit: "%" },
+      reRegRate: { value: 54,   target: 60,   unit: "%" },
+      status: "warn",
+      current: [
+        "매출 1,886만원(달성률 92%), 유효회원 115명으로 목표 106% 초과",
+        "OT율 57%·저조자율 안정적 — 새벽반 가동률 정착이 관건"
+      ],
+      problem: [
+        "재등록률 54%(목표 60%) — 대상자 24명 중 13명 전환, 6월 최종 미달 마감"
+      ],
+      action: [
+        "7월 재등록 캐리오버 대상자(미전환 11명) 즉시 관리 리스트업",
+        "새벽반 가동률 14% → 목표치 설정 후 8월까지 로드맵 수립"
+      ]
+    },
+    {
+      name: "상도",
+      week: "6월 결산",
+      revenue:   { value: 1571, target: 1800, unit: "만원" },
+      members:   { value: 94,   target: 91,   unit: "명" },
+      otRate:    { value: 74,   target: 60,   unit: "%" },
+      reRegRate: { value: 50,   target: 60,   unit: "%" },
+      status: "warn",
+      current: [
+        "매출 1,571만원(달성률 87%), 유효회원 94명으로 목표 103% 초과",
+        "OT율 74%로 목표 대비 크게 초과 — 체험 후 수업 전환 개선"
+      ],
+      problem: [
+        "재등록률 50%(목표 60%) — 신규 유입 자체는 개선됐으나 재등록 전환율 아직 미달"
+      ],
+      action: [
+        "7월 재등록 대상자 얼리버드 혜택 2주 전 안내 루틴 강화",
+        "저조자율 월말 28%까지 악화 — 케어톡 루틴 개선 우선 실행"
+      ]
+    },
+    {
+      name: "까치산",
+      week: "6월 결산",
+      revenue:   { value: 221,  target: 500,  unit: "만원" },
+      members:   { value: 28,   target: 38,   unit: "명" },
+      otRate:    { value: 100,  target: 50,   unit: "%" },
+      reRegRate: { value: 67,   target: 50,   unit: "%" },
+      status: "bad",
+      current: [
+        "재등록률 67%·OT율 100%로 수치 자체는 양호 — 단, 대상자·체험 수 절대 규모가 매우 작음",
+        "이일표 코치 6/15 투입 — 초기 라포 형성 단계"
+      ],
+      problem: [
+        "매출 221만원(달성률 44%) — 신청 대비 체험 전환 0건으로 사실상 신규 유입 없음",
+        "유효회원 27명으로 감소 추세 지속 — 저조자율 38%로 이탈 위험"
+      ],
+      action: [
+        "7월 광고 소재 전면 교체 + 플레이스 노출 점검 (신청→체험 퍼널 복구 최우선)",
+        "코치 라포 형성 지원 — 기존 회원 대상 이일표 코치 소개 이벤트 검토"
+      ]
+    }
+  ],
+  watchlist: [
+    { branch: "까치산", metric: "매출 달성률", severity: "bad",  text: "44% — 3지점 중 최저, 신규 유입 퍼널 복구가 7월 최우선 과제" },
+    { branch: "까치산", metric: "유효회원",    severity: "bad",  text: "27명 (목표 38명) — 목표 대비 71%, 저조자율 38%로 추가 이탈 위험" },
+    { branch: "문정",   metric: "재등록률",    severity: "warn", text: "54% — 목표 60% 미달. 미전환 11명 7월 캐리오버 관리 필요" },
+    { branch: "상도",   metric: "재등록률",    severity: "warn", text: "50% — 목표 60% 미달. 저조자율 월말 28%로 악화 주의" }
+  ]
+};
+
+/* ========================================================
+   RENDER LOGIC
+   ======================================================== */
+
+function pct(value, target){ if(!target) return 0; return Math.round((value/target)*100); }
+function flagClass(achPct){ if(achPct >= 95) return "good"; if(achPct >= 70) return "warn"; return "bad"; }
+function statusLabel(s){ return s === "good" ? "안정" : s === "warn" ? "관찰 필요" : "긴급 점검"; }
+function deltaArrow(curr, prev){
+  if(prev === null || prev === undefined || curr === null || curr === undefined) return "";
+  const diff = curr - prev;
+  if(diff > 0) return `<span class="pos">▲${Math.abs(diff)}</span>`;
+  if(diff < 0) return `<span class="neg">▼${Math.abs(diff)}</span>`;
+  return `<span>–</span>`;
+}
+
+// ── 편집 가능한 현황/문제/액션 섹션 빌더 ──────────────────
+function editableSection(tag, items, uid) {
+  const safeItems = (items && items.length) ? items : [''];
+  const lines = safeItems.map((txt, i) => `
+    <div class="hpa-line" data-uid="${uid}" data-idx="${i}">
+      <div class="hpa-editable" contenteditable="true"
+           data-placeholder="${tag} 내용을 입력하세요"
+           spellcheck="false">${txt}</div>
+      <button class="hpa-btn del" title="줄 삭제" onclick="delLine(this)">✕</button>
+    </div>
+  `).join('');
+  return `
+    <div class="hpa-row">
+      <div class="hpa-tag">${tag}</div>
+      <div class="hpa-lines" id="${uid}">
+        ${lines}
+        <button class="hpa-add" onclick="addLine('${uid}','${tag}')">＋ 줄 추가</button>
+      </div>
+    </div>
+  `;
+}
+
+function addLine(uid, tag) {
+  const container = document.getElementById(uid);
+  const addBtn = container.querySelector('.hpa-add');
+  const newLine = document.createElement('div');
+  newLine.className = 'hpa-line';
+  newLine.dataset.uid = uid;
+  const idx = container.querySelectorAll('.hpa-line').length;
+  newLine.dataset.idx = idx;
+  newLine.innerHTML = `
+    <div class="hpa-editable" contenteditable="true"
+         data-placeholder="${tag} 내용을 입력하세요"
+         spellcheck="false"></div>
+    <button class="hpa-btn del" title="줄 삭제" onclick="delLine(this)">✕</button>
+  `;
+  container.insertBefore(newLine, addBtn);
+  newLine.querySelector('.hpa-editable').focus();
+}
+
+function delLine(btn) {
+  const line = btn.closest('.hpa-line');
+  const container = line.parentElement;
+  const lines = container.querySelectorAll('.hpa-line');
+  if (lines.length <= 1) {
+    // 마지막 줄은 삭제 대신 내용만 비움
+    line.querySelector('.hpa-editable').textContent = '';
+    line.querySelector('.hpa-editable').focus();
+    return;
+  }
+  line.remove();
+}
+
+function rateTag(b) {
+  if (b.applyRateAvg6 === null || b.applyRateAvg6 === undefined) {
+    return '<span class="rate-delta rate-na">6월 미기재</span>';
+  }
+  const cur = (b.applyRate1 + b.applyRate2) / 2;
+  const diff = Math.round((cur - b.applyRateAvg6) * 100) / 100;
+  const absDiff = Math.abs(diff).toFixed(2);
+  if (diff > 0) return '<span class="rate-delta rate-up">▲ ' + absDiff + '%p vs 6월 평균 ' + b.applyRateAvg6 + '%</span>';
+  if (diff < 0) return '<span class="rate-delta rate-dn">▼ ' + absDiff + '%p vs 6월 평균 ' + b.applyRateAvg6 + '%</span>';
+  return '<span class="rate-delta rate-flat">– 전월 동일</span>';
+}
+
+/* ---------- WEEKLY RENDER ---------- */
+function renderWeekly(){
+  const grid = document.getElementById("summaryGridW");
+  const totalMonthRevenue = WEEKLY_DATA.branches.reduce((a,b)=>a+(b.monthRevenue||0),0);
+  const totalMonthTarget = WEEKLY_DATA.branches.reduce((a,b)=>a+(b.monthTarget||0),0);
+  const totalRevenue = WEEKLY_DATA.branches.reduce((a,b)=>a+(b.revenueWeek||0),0);
+  const totalMembers = WEEKLY_DATA.branches.reduce((a,b)=>a+(b.members||0),0);
+  const totalApply = WEEKLY_DATA.branches.reduce((a,b)=>a+(b.applyCount||0),0);
+  const totalTrial = WEEKLY_DATA.branches.reduce((a,b)=>a+(b.trialCount||0),0);
+  const monthAch = pct(totalMonthRevenue, totalMonthTarget);
+
+  const cards = [
+    { label: "7월 누적 매출", value: totalMonthRevenue.toLocaleString()+"만원", sub: `목표 ${totalMonthTarget.toLocaleString()}만원 · 진행률 ${monthAch}%`, cls: "" },
+    { label: "이번 주 매출", value: totalRevenue.toLocaleString()+"만원", sub: "3지점 합계 (7/6~7/12)", cls: "" },
+    { label: "전사 유효회원", value: totalMembers+"명", sub: "3지점 합계", cls: "" },
+    { label: "전사 신청 수", value: totalApply+"건", sub: `체험 전환 ${totalTrial}건`, cls: totalTrial>=totalApply*0.6?"pos":"neg" },
+    { label: "전사 평균 저조자율", value: Math.round(WEEKLY_DATA.branches.reduce((a,b)=>a+(b.lowActivityRate||0),0)/WEEKLY_DATA.branches.length)+"%", sub: "3지점 평균", cls: "" },
+  ];
+
+  grid.innerHTML = cards.map(c => `
+    <div class="sumcard">
+      <div class="label">${c.label}</div>
+      <div class="value">${c.value}</div>
+      <div class="sub ${c.cls}">${c.sub}</div>
+    </div>
+  `).join("");
+
+  // 주차가 이른 경우(1~2주차) 재등록률/OT율 같은 누적성 지표는 색상 판정을 완화한다.
+  const earlyWeek = (WEEKLY_DATA.weekOfMonth || 4) <= 2;
+
+  const bgrid = document.getElementById("branchGridW");
+  bgrid.innerHTML = WEEKLY_DATA.branches.map(b => {
+    const revDelta = deltaArrow(b.revenueWeek, b.prevWeek.revenueWeek);
+    const lowDelta = deltaArrow(b.lowActivityRate, b.prevWeek.lowActivityRate);
+    const reRegDelta = deltaArrow(b.reRegRate, b.prevWeek.reRegRate);
+
+    const monthAchBranch = pct(b.monthRevenue, b.monthTarget);
+
+    let reRegCls, otCls, lowCls;
+    if(earlyWeek){
+      // 초반 주차: 재등록률·OT율은 경고색 없이 중립으로, 저조자율만 완만하게 표시
+      reRegCls = "neutral";
+      otCls = "neutral";
+      lowCls = b.lowActivityRate <= 30 ? "neutral" : "warn";
+    } else {
+      reRegCls = b.reRegRate >= 50 ? "good" : b.reRegRate >= 30 ? "warn" : "bad";
+      lowCls = b.lowActivityRate <= 20 ? "good" : b.lowActivityRate <= 30 ? "warn" : "bad";
+      otCls = b.otRateCumulative === null ? "neutral" : b.otRateCumulative >= 50 ? "good" : b.otRateCumulative >= 30 ? "warn" : "bad";
+    }
+
+    return `
+    <div class="branch-card">
+      <div class="branch-head">
+        <div>
+          <div class="branch-name">${b.name}</div>
+          <div class="branch-week">${b.week}</div>
+        </div>
+        <div class="status-pill status-${b.status}">${statusLabel(b.status)}</div>
+      </div>
+
+      <div class="kpi-row">
+        <div class="kpi flag-neutral">
+          <div class="k-label">6월 누적 매출</div>
+          <div class="k-value">${b.monthRevenue.toLocaleString()}만원</div>
+          <div class="k-target">목표 ${b.monthTarget.toLocaleString()}만원 · 진행률 ${monthAchBranch}%</div>
+        </div>
+        <div class="kpi flag-neutral">
+          <div class="k-label">이번 주 매출</div>
+          <div class="k-value">${b.revenueWeek!==null? b.revenueWeek.toLocaleString()+"만원" : "-"}</div>
+          <div class="k-target">전주 대비 ${revDelta}</div>
+        </div>
+        <div class="kpi flag-neutral">
+          <div class="k-label">유효회원</div>
+          <div class="k-value">${b.members}명</div>
+          <div class="k-target">신청 ${b.applyCount}건 · 체험 ${b.trialCount}건</div>
+        </div>
+        <div class="kpi flag-${otCls}">
+          <div class="k-label">누적 OT율</div>
+          <div class="k-value">${b.otRateCumulative!==null? b.otRateCumulative+"%" : "-"}</div>
+          <div class="k-target">체험 → 수업 전환 기준</div>
+        </div>
+        <div class="kpi flag-${reRegCls}">
+          <div class="k-label">누적 재등록률</div>
+          <div class="k-value">${b.reRegRate}% (${b.reRegFraction})</div>
+          <div class="k-target">전주 대비 ${reRegDelta}</div>
+        </div>
+        <div class="kpi flag-neutral" style="grid-column:1/-1;">
+          <div class="k-label">주차별 신청률 · 6월 평균 대비</div>
+          <div class="k-value" style="font-size:13px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+            <span>1주 <b>${b.applyRate1.toFixed(2)}%</b></span>
+            <span style="color:var(--ink-soft)">→</span>
+            <span>2주 <b>${b.applyRate2.toFixed(2)}%</b></span>
+            ${rateTag(b)}
+          </div>
+        </div>
+        <div class="kpi flag-${lowCls}">
+          <div class="k-label">저조자율</div>
+          <div class="k-value">${b.lowActivityRate}%</div>
+          <div class="k-target">전주 대비 ${lowDelta}</div>
+        </div>
+      </div>
+
+      <div class="hpa">
+        ${editableSection('현황', b.current, b.name+'_w_cur')}
+        ${editableSection('문제', b.problem, b.name+'_w_prb')}
+        <div class="edit-hint">✏️ 클릭하면 바로 수정 · + 버튼으로 줄 추가</div>
+      </div>
+    </div>
+  `; }).join("");
+
+  const wbody = document.getElementById("watchBodyW");
+  wbody.innerHTML = WEEKLY_DATA.watchlist.map(w => `
+    <tr>
+      <td class="branch-tag">${w.branch}</td>
+      <td><span class="sev-dot sev-${w.severity}"></span>${w.metric}</td>
+      <td>${w.text}</td>
+    </tr>
+  `).join("");
+}
+
+/* ---------- MONTHLY RENDER ---------- */
+function kpiBlock(label, kpi, isPercent){
+  const ach = pct(kpi.value, kpi.target);
+  const cls = flagClass(ach);
+  const valStr = isPercent ? kpi.value+"%" : kpi.value.toLocaleString()+(kpi.unit?(" "+kpi.unit):"");
+  const tgtStr = isPercent ? kpi.target+"%" : kpi.target.toLocaleString()+(kpi.unit?(" "+kpi.unit):"");
+  return `
+    <div class="kpi flag-${cls}">
+      <div class="k-label">${label}</div>
+      <div class="k-value">${valStr}</div>
+      <div class="k-target">목표 ${tgtStr} · 달성률 ${ach}%</div>
+    </div>
+  `;
+}
+
+function renderMonthly(){
+  const grid = document.getElementById("summaryGridM");
+  const totalRevenue = MONTHLY_DATA.branches.reduce((a,b)=>a+b.revenue.value,0);
+  const totalTarget = MONTHLY_DATA.branches.reduce((a,b)=>a+b.revenue.target,0);
+  const avgOT = Math.round(MONTHLY_DATA.branches.reduce((a,b)=>a+b.otRate.value,0)/MONTHLY_DATA.branches.length);
+  const avgRe = Math.round(MONTHLY_DATA.branches.reduce((a,b)=>a+b.reRegRate.value,0)/MONTHLY_DATA.branches.length);
+  const badCount = MONTHLY_DATA.branches.filter(b=>b.status==="bad").length;
+  const warnCount = MONTHLY_DATA.branches.filter(b=>b.status==="warn").length;
+
+  const cards = [
+    { label: "전사 매출 (3지점)", value: totalRevenue.toLocaleString()+"만원", sub: `목표 ${totalTarget.toLocaleString()}만원 · 달성률 ${pct(totalRevenue,totalTarget)}%`, cls: pct(totalRevenue,totalTarget)>=80?"pos":"neg" },
+    { label: "평균 OT율", value: avgOT+"%", sub: "3지점 평균 (목표 50~60%)", cls: avgOT>=50?"pos":"neg" },
+    { label: "평균 재등록률", value: avgRe+"%", sub: "3지점 평균 (목표 50~60%)", cls: avgRe>=50?"pos":"neg" },
+    { label: "관찰 필요 지점", value: warnCount+"곳", sub: "달성률 70~94% 구간", cls: "" },
+    { label: "긴급 점검 지점", value: badCount+"곳", sub: "달성률 70% 미만", cls: badCount>0?"neg":"pos" },
+  ];
+
+  grid.innerHTML = cards.map(c => `
+    <div class="sumcard">
+      <div class="label">${c.label}</div>
+      <div class="value">${c.value}</div>
+      <div class="sub ${c.cls}">${c.sub}</div>
+    </div>
+  `).join("");
+
+  const bgrid = document.getElementById("branchGridM");
+  bgrid.innerHTML = MONTHLY_DATA.branches.map(b => `
+    <div class="branch-card">
+      <div class="branch-head">
+        <div>
+          <div class="branch-name">${b.name}</div>
+          <div class="branch-week">${b.week}</div>
+        </div>
+        <div class="status-pill status-${b.status}">${statusLabel(b.status)}</div>
+      </div>
+
+      <div class="kpi-row">
+        ${kpiBlock("매출", b.revenue, false)}
+        ${kpiBlock("유효회원", b.members, false)}
+        ${kpiBlock("OT율", b.otRate, true)}
+        ${kpiBlock("재등록률", b.reRegRate, true)}
+      </div>
+
+      <div class="hpa">
+        ${editableSection('현황', b.current, b.name+'_m_cur')}
+        ${editableSection('문제', b.problem, b.name+'_m_prb')}
+        ${editableSection('액션', b.action, b.name+'_m_act')}
+        <div class="edit-hint">✏️ 클릭하면 바로 수정 · + 버튼으로 줄 추가</div>
+      </div>
+    </div>
+  `).join("");
+
+  const wbody = document.getElementById("watchBodyM");
+  wbody.innerHTML = MONTHLY_DATA.watchlist.map(w => `
+    <tr>
+      <td class="branch-tag">${w.branch}</td>
+      <td><span class="sev-dot sev-${w.severity}"></span>${w.metric}</td>
+      <td>${w.text}</td>
+    </tr>
+  `).join("");
+}
+
+/* ---------- MODE SWITCH ---------- */
+
+function renderAll(){
+  renderWeekly();
+  renderMonthly();
+  setMode('weekly');
+}
+
+function setMode(mode){
+  document.querySelectorAll(".mode-tab").forEach(t => t.classList.toggle("active", t.dataset.mode === mode));
+  document.getElementById("view-weekly").classList.toggle("active", mode === "weekly");
+  document.getElementById("view-monthly").classList.toggle("active", mode === "monthly");
+
+  if(mode === "weekly"){
+    document.getElementById("pageTitle").textContent = "지점별 주간 운영 현황";
+    document.getElementById("asof").textContent = WEEKLY_DATA.asOf;
+    document.getElementById("footnote").textContent = "이 대시보드는 매주 시트 입력값을 기준으로 재생성됩니다. 다음 주차 데이터로 갱신을 요청하면 새 파일이 생성됩니다.";
+  } else {
+    document.getElementById("pageTitle").textContent = "지점별 월간 결산";
+    document.getElementById("asof").textContent = MONTHLY_DATA.asOf;
+    document.getElementById("footnote").textContent = "월말 결산 시 이 화면이 갱신됩니다. 목표 대비 달성률 기준으로 색상이 표시됩니다.";
+  }
+}
+
+document.querySelectorAll(".mode-tab").forEach(tab => {
+  tab.addEventListener("click", () => setMode(tab.dataset.mode));
+});
+
+renderWeekly();
+renderMonthly();
+setMode("weekly");
+renderAll();
+</script>
+</body>
+</html>
